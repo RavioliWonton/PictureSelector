@@ -21,6 +21,7 @@ public class PictureSelector {
     public static final String PICTURE_RESULT  = "picture_result";//选择的图片结果
     private final ActivityResultLauncher<Intent> launcher;
     private final Intent intent;
+    private final ActivityOptionsCompat animation;
 
     /**
      * 创建 PictureSelector（用于 Activity）
@@ -41,17 +42,20 @@ public class PictureSelector {
      * @return PictureSelector
      */
     public static PictureSelector create(Fragment fragment, ActivityResultCallback<ActivityResult> callback) {
-        return new PictureSelector(fragment, callback);
+        return new PictureSelector(fragment.requireActivity(), callback);
     }
 
     private PictureSelector(ComponentActivity activity, ActivityResultCallback<ActivityResult> callback) {
         launcher = activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
         intent = new Intent(activity, PictureSelectActivity.class);
+        animation = ActivityOptionsCompat.makeCustomAnimation(activity, R.anim.activity_out, R.anim.activity_out);
     }
 
+    @Deprecated
     private PictureSelector(Fragment fragment, ActivityResultCallback<ActivityResult> callback) {
         launcher = fragment.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
         intent = new Intent(fragment.requireActivity(), PictureSelectActivity.class);
+        animation = ActivityOptionsCompat.makeCustomAnimation(fragment.requireContext(), R.anim.activity_out, R.anim.activity_out);
     }
 
     /**
@@ -85,7 +89,7 @@ public class PictureSelector {
         intent.putExtra(PictureSelectActivity.CROP_HEIGHT, cropHeight);
         intent.putExtra(PictureSelectActivity.RATIO_WIDTH, ratioWidth);
         intent.putExtra(PictureSelectActivity.RATIO_HEIGHT, ratioHeight);
-        launcher.launch(intent, ActivityOptionsCompat.makeBasic());
+        launcher.launch(intent, animation);
     }
 }
 

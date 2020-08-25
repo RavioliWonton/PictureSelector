@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
@@ -38,9 +39,9 @@ public class PictureSelectUtils {
     public static final int  GET_BY_ALBUM  = 0x11;//相册标记
     public static final int  GET_BY_CAMERA = 0x12;//拍照标记
     public static final int  CROP          = 0x13;//裁剪标记
-    public static      Uri  takePictureUri;//拍照图片uri
-    public static      Uri  cropPictureTempUri;//裁剪图片uri
-    public static      File takePictureFile;//拍照图片File
+    static      Uri  takePictureUri;//拍照图片uri
+    static      Uri  cropPictureTempUri;//裁剪图片uri
+    static      File takePictureFile;//拍照图片File
 
     /**
      * 通过相册获取图片
@@ -49,7 +50,7 @@ public class PictureSelectUtils {
         ActivityResultLauncher<Intent> albumLauncher = activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
         Intent intent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI).setType("image/*");
-        albumLauncher.launch(intent, ActivityOptionsCompat.makeBasic());
+        albumLauncher.launch(intent);
     }
 
     /**
@@ -59,7 +60,7 @@ public class PictureSelectUtils {
         takePictureUri = createImagePathUri(activity);
         if (takePictureUri != null) {
             ActivityResultLauncher<Uri> cameraLauncher = activity.registerForActivityResult(new ActivityResultContracts.TakePicture(), callback);
-            cameraLauncher.launch(takePictureUri, ActivityOptionsCompat.makeBasic());
+            cameraLauncher.launch(takePictureUri);
         } else {
             Toast.makeText(activity, "打开相机失败", Toast.LENGTH_LONG).show();
         }
@@ -83,8 +84,8 @@ public class PictureSelectUtils {
                 takePictureUri = activity.getContentResolver().insert(MediaStore.Images.Media.INTERNAL_CONTENT_URI, values);
             }
         } else {
-            String pathName = new StringBuffer().append(FileUtils.getExtPicturesPath()).append(File.separator)
-                    .append(System.currentTimeMillis()).append(".jpg").toString();
+            String pathName = FileUtils.getExtPicturesPath() + File.separator +
+                    System.currentTimeMillis() + ".jpg";
             takePictureFile = new File(pathName);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { //解决Android 7.0 拍照出现FileUriExposedException的问题
@@ -132,17 +133,15 @@ public class PictureSelectUtils {
         intent.putExtra("scaleUpIfNeeded", true);
 
         /*解决跳转到裁剪提示“图片加载失败”问题*/
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
         /*解决小米miui系统调用系统裁剪图片功能camera.action.CROP后崩溃或重新打开app的问题*/
-        String pathName = new StringBuffer().append("file:///").append(FileUtils.getImageCacheDir(activity)).append(File.separator)
-                .append(System.currentTimeMillis()).append(".jpg").toString();
+        String pathName = "file://" + FileUtils.getImageCacheDir(activity) + File.separator +
+                System.currentTimeMillis() + ".jpg";
         cropPictureTempUri = Uri.parse(pathName);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, cropPictureTempUri);//输出路径(裁剪后的保存路径)
         // 输出格式
-        intent.putExtra("outputFormat", "JPEG");
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
         // 不启用人脸识别
         intent.putExtra("noFaceDetection", true);
         //是否将数据保留在Bitmap中返回

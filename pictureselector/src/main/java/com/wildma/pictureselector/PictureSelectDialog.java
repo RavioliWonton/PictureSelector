@@ -1,6 +1,5 @@
 package com.wildma.pictureselector;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -13,6 +12,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDialog;
+
 
 /**
  * Author       wildma
@@ -20,21 +22,18 @@ import android.widget.Button;
  * CreateDate   2018/6/10
  * Desc	        ${选择图片Dialog}
  */
-public class PictureSelectDialog extends Dialog implements View.OnClickListener {
+public class PictureSelectDialog extends AppCompatDialog implements View.OnClickListener {
 
-    private Context mContext;
     private Button  mBtnCamera;
     private Button  mBtnAlbum;
     private Button  mBtnCancel;
 
     public PictureSelectDialog(Context context) {
         super(context);
-        this.mContext = context;
     }
 
     public PictureSelectDialog(Context context, int theme) {
         super(context, theme);
-        this.mContext = context;
         initDialog();
     }
 
@@ -94,7 +93,7 @@ public class PictureSelectDialog extends Dialog implements View.OnClickListener 
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (isOutOfBounds(getContext(), event)) {
             hideDialog();
             mListener.onItemClick(Constant.CANCEL);//触摸dialog外部关闭dialog

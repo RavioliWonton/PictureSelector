@@ -113,6 +113,7 @@ public class PictureSelectActivity extends AppCompatActivity {
                 if (cropPictureTempUri.getPath() != null) {
                     File file = new File(cropPictureTempUri.getPath());
                     picturePath = file.getAbsolutePath();
+                    handlePicturePath();
                 }
             }
         });
@@ -125,17 +126,15 @@ public class PictureSelectActivity extends AppCompatActivity {
                         @Override
                         public void onActivityResult(Boolean result) {
                             if (!result) finish();
-                            getPicturePath(cropLauncher, GET_BY_CAMERA, takePictureUri, mCropEnabled, mCropWidth, mCropHeight, mRatioWidth, mRatioHeight);
-                            handlePicturePath();
+                            else getPicturePath(cropLauncher, GET_BY_CAMERA, takePictureUri, mCropEnabled, mCropWidth, mCropHeight, mRatioWidth, mRatioHeight);
                         }
                     });
                 } else if (type == Constant.ALBUM) {
                     PictureSelectUtils.getByAlbum(PictureSelectActivity.this, new ActivityResultCallback<ActivityResult>() {
                         @Override
                         public void onActivityResult(ActivityResult result) {
-                            if (result.getResultCode() == RESULT_CANCELED) finish();
-                            getPicturePath(cropLauncher, GET_BY_ALBUM, result.getData().getData(), mCropEnabled, mCropWidth, mCropHeight, mRatioWidth, mRatioHeight);
-                            handlePicturePath();
+                            if (result.getResultCode() != RESULT_OK) finish();
+                            else getPicturePath(cropLauncher, GET_BY_ALBUM, result.getData().getData(), mCropEnabled, mCropWidth, mCropHeight, mRatioWidth, mRatioHeight);
                         }
                     });
                 } else if (type == Constant.CANCEL) {
@@ -157,19 +156,20 @@ public class PictureSelectActivity extends AppCompatActivity {
      * @param aspectX     宽比例
      * @param aspectY     高比例
      */
-    public void getPicturePath(ActivityResultLauncher<Intent> launcher, int requestCode, Uri uri,
+    private void getPicturePath(ActivityResultLauncher<Intent> launcher, int requestCode, Uri uri,
                                  boolean cropEnabled, int w, int h, int aspectX, int aspectY) {
         switch (requestCode) {
             case GET_BY_ALBUM:
                 if (cropEnabled) {
-                    launcher.launch(crop(this, uri, w, h, aspectX, aspectY), ActivityOptionsCompat.makeBasic());
+                    launcher.launch(crop(this, uri, w, h, aspectX, aspectY), ActivityOptionsCompat.makeCustomAnimation(this, R.anim.activity_out, R.anim.activity_out));
                 } else {
                     picturePath = ImageUtils.getImagePath(this, uri);
+                    handlePicturePath();
                 }
                 break;
             case GET_BY_CAMERA:
                 if (cropEnabled) {
-                    launcher.launch(crop(this, uri, w, h, aspectX, aspectY), ActivityOptionsCompat.makeBasic());
+                    launcher.launch(crop(this, uri, w, h, aspectX, aspectY), ActivityOptionsCompat.makeCustomAnimation(this, R.anim.activity_out, R.anim.activity_out));
                 } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         picturePath = ImageUtils.getImagePath(this, uri);
@@ -181,6 +181,7 @@ public class PictureSelectActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(takePictureFile)));
                 }
+                handlePicturePath();
                 break;
         }
     }
