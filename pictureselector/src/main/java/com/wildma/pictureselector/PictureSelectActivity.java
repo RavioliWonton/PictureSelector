@@ -1,30 +1,25 @@
 package com.wildma.pictureselector;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.ContextCompat;
-
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 
-import static com.wildma.pictureselector.PictureSelectUtils.CROP;
 import static com.wildma.pictureselector.PictureSelectUtils.GET_BY_ALBUM;
 import static com.wildma.pictureselector.PictureSelectUtils.GET_BY_CAMERA;
 import static com.wildma.pictureselector.PictureSelectUtils.crop;

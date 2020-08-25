@@ -2,11 +2,11 @@ package com.wildma.pictureselector;
 
 import android.content.Intent;
 
+import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 
@@ -29,7 +29,7 @@ public class PictureSelector {
      * @param callback 结果回调
      * @return PictureSelector
      */
-    public static PictureSelector create(AppCompatActivity activity, ActivityResultCallback<ActivityResult> callback) {
+    public static PictureSelector create(ComponentActivity activity, ActivityResultCallback<ActivityResult> callback) {
         return new PictureSelector(activity, callback);
     }
 
@@ -44,7 +44,7 @@ public class PictureSelector {
         return new PictureSelector(fragment, callback);
     }
 
-    private PictureSelector(AppCompatActivity activity, ActivityResultCallback<ActivityResult> callback) {
+    private PictureSelector(ComponentActivity activity, ActivityResultCallback<ActivityResult> callback) {
         launcher = activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
         intent = new Intent(activity, PictureSelectActivity.class);
     }
