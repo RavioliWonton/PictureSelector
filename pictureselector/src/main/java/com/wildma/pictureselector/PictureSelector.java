@@ -1,10 +1,13 @@
 package com.wildma.pictureselector;
 
-import android.app.Activity;
 import android.content.Intent;
 
-import java.lang.ref.WeakReference;
-
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 
 /**
@@ -15,46 +18,40 @@ import androidx.fragment.app.Fragment;
  */
 public class PictureSelector {
 
-    public static final int                     SELECT_REQUEST_CODE = 0x15;//选择图片请求码
-    public static final String                  PICTURE_RESULT      = "picture_result";//选择的图片结果
-    private             int                     mRequestCode;
-    private final       WeakReference<Activity> mActivity;
-    private final       WeakReference<Fragment> mFragment;
+    public static final String PICTURE_RESULT  = "picture_result";//选择的图片结果
+    private final ActivityResultLauncher<Intent> launcher;
+    private final Intent intent;
 
     /**
      * 创建 PictureSelector（用于 Activity）
      *
      * @param activity    Activity
-     * @param requestCode 请求码，用于结果回调 onActivityResult() 中判断
+     * @param callback 结果回调
      * @return PictureSelector
      */
-    public static PictureSelector create(Activity activity, int requestCode) {
-        return new PictureSelector(activity, requestCode);
+    public static PictureSelector create(AppCompatActivity activity, ActivityResultCallback<ActivityResult> callback) {
+        return new PictureSelector(activity, callback);
     }
 
     /**
      * 创建 PictureSelector（用于 Fragment）
      *
      * @param fragment    Fragment
-     * @param requestCode 请求码，用于结果回调 onActivityResult() 中判断
+     * @param callback 结果回调
      * @return PictureSelector
      */
-    public static PictureSelector create(Fragment fragment, int requestCode) {
-        return new PictureSelector(fragment, requestCode);
+    public static PictureSelector create(Fragment fragment, ActivityResultCallback<ActivityResult> callback) {
+        return new PictureSelector(fragment, callback);
     }
 
-    private PictureSelector(Activity activity, int requestCode) {
-        this(activity, (Fragment) null, requestCode);
+    private PictureSelector(AppCompatActivity activity, ActivityResultCallback<ActivityResult> callback) {
+        launcher = activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
+        intent = new Intent(activity, PictureSelectActivity.class);
     }
 
-    private PictureSelector(Fragment fragment, int requestCode) {
-        this(fragment.getActivity(), fragment, requestCode);
-    }
-
-    private PictureSelector(Activity activity, Fragment fragment, int requestCode) {
-        this.mActivity = new WeakReference(activity);
-        this.mFragment = new WeakReference(fragment);
-        this.mRequestCode = requestCode;
+    private PictureSelector(Fragment fragment, ActivityResultCallback<ActivityResult> callback) {
+        launcher = fragment.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
+        intent = new Intent(fragment.requireActivity(), PictureSelectActivity.class);
     }
 
     /**
@@ -83,19 +80,12 @@ public class PictureSelector {
      * @param ratioHeight 高比例
      */
     public void selectPicture(boolean cropEnabled, int cropWidth, int cropHeight, int ratioWidth, int ratioHeight) {
-        Activity activity = this.mActivity.get();
-        Fragment fragment = this.mFragment.get();
-        Intent intent = new Intent(activity, PictureSelectActivity.class);
         intent.putExtra(PictureSelectActivity.ENABLE_CROP, cropEnabled);
         intent.putExtra(PictureSelectActivity.CROP_WIDTH, cropWidth);
         intent.putExtra(PictureSelectActivity.CROP_HEIGHT, cropHeight);
         intent.putExtra(PictureSelectActivity.RATIO_WIDTH, ratioWidth);
         intent.putExtra(PictureSelectActivity.RATIO_HEIGHT, ratioHeight);
-        if (fragment != null) {
-            fragment.startActivityForResult(intent, mRequestCode);
-        } else {
-            activity.startActivityForResult(intent, mRequestCode);
-        }
+        launcher.launch(intent, ActivityOptionsCompat.makeBasic());
     }
 }
 
