@@ -1,9 +1,9 @@
-[![](https://jitpack.io/v/wildma/PictureSelector.svg)](https://jitpack.io/#RavioliWonton/PictureSelector)
+[![](https://jitpack.io/v/RavioliWonton/PictureSelector.svg)](https://jitpack.io/#RavioliWonton/PictureSelector)
 
 # PictureSelector
 Android 图片选择器（仿 IOS 图片选择控件）· 改
 
-## 效果图
+## 效果图（与原版完全一致）
 
 ![效果图.jpg](https://upload-images.jianshu.io/upload_images/5382223-9d82fb9c0f22bfb2.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
