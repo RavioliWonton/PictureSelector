@@ -30,7 +30,7 @@ allprojects {
 注意：从 2.0.0 版本开始，项目迁移到 AndroidX。如果你的项目还未迁移到 AndroidX，可以使用 1.2.0 版本，同时由于原支持库停止更新，故不支持 ActivityResult API。
 ```java
 dependencies {
-	implementation 'com.github.RavioliWonton:PictureSelector:3.0.0-alpha03'
+	implementation 'com.github.RavioliWonton:PictureSelector:3.0.0-alpha04'
 }
 ```
 ### Step 3. 拍照或者从相册选择图片
@@ -57,7 +57,7 @@ PictureSelector
 ```
 
 **参数解释：**
-- create()：参数一是上下文，在 activity 中传 activity.this，在 fragment 中传 fragment.requireActivity() （***直接传入 fragment 方法已被弃用，因为 [API](https://developer.android.com/jetpack/androidx/releases/fragment#1.3.0-alpha08) 规定 [registerForActivityResult](https://developer.android.com/reference/androidx/activity/result/ActivityResultCaller#registerForActivityResult(androidx.activity.result.contract.ActivityResultContract%3CI,%20O%3E,%20androidx.activity.result.ActivityResultCallback%3CO%3E)) 需要在 onCreate() 及之前的生命周期阶段调用，不然将抛出异常***）。参数二 callback 是一个ActivityResultCallBack对象，负责处理选择图片结果回调。
+- create()：参数一是上下文，在 activity 中传 activity.this，在 fragment 中传 fragment.requireActivity() （***直接传入 fragment 方法已被弃用（直接使用与传入requireActivity()效果相同），因为 [API](https://developer.android.com/jetpack/androidx/releases/fragment#1.3.0-alpha08) 规定 [registerForActivityResult](https://developer.android.com/reference/androidx/activity/result/ActivityResultCaller#registerForActivityResult(androidx.activity.result.contract.ActivityResultContract%3CI,%20O%3E,%20androidx.activity.result.ActivityResultCallback%3CO%3E)) 需要在 onCreate() 及之前的生命周期阶段调用，不然将抛出异常***）。参数二 callback 是一个ActivityResultCallBack对象，负责处理选择图片结果回调。
 - selectPicture()：参数分别为是否裁剪、裁剪后图片的宽(单位 px)、裁剪后图片的高、宽比例、高比例。
 
 ### Step 4. 获取图片地址进行显示
@@ -94,7 +94,7 @@ PictureSelector
 ## 注意
 1.你的 Activity 和 Fragment 必须继承于 androidx.core.app.ComponentActivity 和 androidx.fragment.app.Fragment 或它们的直接子类， 平台 SDK 的 Activity 和 Fragment 没有实现 [ActivityResultCaller](https://developer.android.com/reference/androidx/activity/result/ActivityResultCaller) 接口，会导致运行异常。目前使用 Android Studio 创建的新项目均会自动导入 AndroidX Activity 包和 AndroidX Fragment 包并默认继承以上两类，不需要做特别的处理。
 
-**同时请注意，该 API 仍然在 Alpha 阶段，开发请慎用！**
+**同时请注意，该 API 仍然在 Alpha 阶段，正式项目开发请慎用！**
 
 2.本项目仅仅适配了 ActivityResult API 并对原有接口实现做出必要更改，并无任何新功能添加，与原版库完全（在使用 AppCompat 组件的情况下）接口兼容，如对 **ActivityResult API 相关以外**的功能有任何Issue，请提交至主项目。
 
