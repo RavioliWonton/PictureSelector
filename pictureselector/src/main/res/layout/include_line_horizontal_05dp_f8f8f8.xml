@@ -3,5 +3,5 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="0.5dp"
-    android:background="@color/color_f8f8f8">
+    android:background="#F8F8F8">
 </View>

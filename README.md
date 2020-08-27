@@ -30,7 +30,7 @@ allprojects {
 注意：从 2.0.0 版本开始，项目迁移到 AndroidX。如果你的项目还未迁移到 AndroidX，可以使用 1.2.0 版本，同时由于原支持库停止更新，故不支持 ActivityResult API。
 ```java
 dependencies {
-	implementation 'com.github.RavioliWonton:PictureSelector:3.0.0-alpha05'
+	implementation 'com.github.RavioliWonton:PictureSelector:3.0.0-alpha06'
 }
 ```
 ### Step 3. 拍照或者从相册选择图片
