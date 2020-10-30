@@ -9,6 +9,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 /**
  * Author       wildma
@@ -18,44 +20,85 @@ import androidx.fragment.app.Fragment;
  */
 public class PictureSelector {
 
-    public static final String PICTURE_RESULT  = "picture_result";//选择的图片结果
+    public static final String PICTURE_RESULT = "picture_result";//选择的图片结果
     private final ActivityResultLauncher<Intent> launcher;
     private final Intent intent;
     private final ActivityOptionsCompat animation;
 
+    private PictureSelector(final ComponentActivity activity, final ActivityResultCallback<ActivityResult> callback) {
+        if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED))
+            throw new RuntimeException("Initialization too late, must call before activity's onStart().");
+        launcher = activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
+        intent = new Intent(activity, PictureSelectActivity.class);
+        animation = ActivityOptionsCompat.makeCustomAnimation(activity, R.anim.activity_out, R.anim.activity_out);
+    }
+
+    private PictureSelector(final Fragment fragment, final ActivityResultCallback<ActivityResult> callback) {
+        if (fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED))
+            throw new RuntimeException("Initialization too late, must call before fragment's onStart().");
+        launcher = fragment.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
+        intent = new Intent(fragment.requireActivity(), PictureSelectActivity.class);
+        animation = ActivityOptionsCompat.makeCustomAnimation(fragment.requireContext(), R.anim.activity_out, R.anim.activity_out);
+    }
+
+    private PictureSelector(final ComponentActivity activity, final ActivityResultLauncher<Intent> launcher) {
+        this.launcher = launcher;
+        intent = new Intent(activity, PictureSelectActivity.class);
+        animation = ActivityOptionsCompat.makeCustomAnimation(activity, R.anim.activity_out, R.anim.activity_out);
+    }
+
+    private PictureSelector(final Fragment fragment, final ActivityResultLauncher<Intent> launcher) {
+        this.launcher = launcher;
+        intent = new Intent(fragment.requireActivity(), PictureSelectActivity.class);
+        animation = ActivityOptionsCompat.makeCustomAnimation(fragment.requireContext(), R.anim.activity_out, R.anim.activity_out);
+    }
+
     /**
-     * 创建 PictureSelector（用于 Activity）
+     * 创建 PictureSelector（用于 Activity），使用{@link ActivityResultCallback}
+     * 必须于{@link LifecycleOwner}的生命周期STARTED之前调用，不然将抛出{@link RuntimeException}
      *
-     * @param activity    Activity
+     * @param activity Activity
      * @param callback 结果回调
      * @return PictureSelector
+     * @throws RuntimeException 当在{@link LifecycleOwner}的生命周期STARTED之后调用
      */
     public static PictureSelector create(ComponentActivity activity, ActivityResultCallback<ActivityResult> callback) {
         return new PictureSelector(activity, callback);
     }
 
     /**
-     * 创建 PictureSelector（用于 Fragment）
+     * 创建 PictureSelector（用于 Fragment），使用{@link ActivityResultLauncher}（方便依赖注入）
      *
      * @param fragment    Fragment
-     * @param callback 结果回调
+     * @param launcher 含有回调的启动器
      * @return PictureSelector
      */
+    public static PictureSelector create(Fragment fragment, ActivityResultLauncher<Intent> launcher) {
+        return new PictureSelector(fragment, launcher);
+    }
+
+    /**
+     * 创建 PictureSelector（用于 Activity），使用{@link ActivityResultLauncher}（方便依赖注入）
+     *
+     * @param activity Activity
+     * @param launcher 含有回调的启动器
+     * @return PictureSelector
+     */
+    public static PictureSelector create(ComponentActivity activity, ActivityResultLauncher<Intent> launcher) {
+        return new PictureSelector(activity, launcher);
+    }
+
+    /**
+     * 创建 PictureSelector（用于 Fragment），使用{@link ActivityResultCallback}
+     * 必须于{@link LifecycleOwner}的生命周期STARTED之前调用，不然将抛出{@link RuntimeException}
+     *
+     * @param fragment Fragment
+     * @param callback 结果回调
+     * @return PictureSelector
+     * @throws RuntimeException 当在{@link LifecycleOwner}的生命周期STARTED之后调用
+     */
     public static PictureSelector create(Fragment fragment, ActivityResultCallback<ActivityResult> callback) {
-        return new PictureSelector(fragment.requireActivity(), callback);
-    }
-
-    private PictureSelector(ComponentActivity activity, ActivityResultCallback<ActivityResult> callback) {
-        launcher = activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
-        intent = new Intent(activity, PictureSelectActivity.class);
-        animation = ActivityOptionsCompat.makeCustomAnimation(activity, R.anim.activity_out, R.anim.activity_out);
-    }
-
-    @Deprecated
-    private PictureSelector(Fragment fragment, ActivityResultCallback<ActivityResult> callback) {
-        launcher = fragment.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
-        intent = new Intent(fragment.requireActivity(), PictureSelectActivity.class);
-        animation = ActivityOptionsCompat.makeCustomAnimation(fragment.requireContext(), R.anim.activity_out, R.anim.activity_out);
+        return new PictureSelector(fragment, callback);
     }
 
     /**

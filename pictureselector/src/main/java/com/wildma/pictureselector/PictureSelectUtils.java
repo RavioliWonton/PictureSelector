@@ -10,15 +10,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.FileProvider;
 
 import java.io.File;
@@ -46,20 +41,17 @@ public class PictureSelectUtils {
     /**
      * 通过相册获取图片
      */
-    public static void getByAlbum(ComponentActivity activity, ActivityResultCallback<ActivityResult> callback) {
-        ActivityResultLauncher<Intent> albumLauncher = activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), callback);
-        Intent intent = new Intent(Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI).setType("image/*");
-        albumLauncher.launch(intent);
+    public static void getByAlbum(final ActivityResultLauncher<String> albumLauncher) {
+        String type = "image/*";
+        albumLauncher.launch(type);
     }
 
     /**
      * 通过拍照获取图片
      */
-    public static void getByCamera(ComponentActivity activity, ActivityResultCallback<Boolean> callback) {
+    public static void getByCamera(final ComponentActivity activity, final ActivityResultLauncher<Uri> cameraLauncher) {
         takePictureUri = createImagePathUri(activity);
         if (takePictureUri != null) {
-            ActivityResultLauncher<Uri> cameraLauncher = activity.registerForActivityResult(new ActivityResultContracts.TakePicture(), callback);
             cameraLauncher.launch(takePictureUri);
         } else {
             Toast.makeText(activity, "打开相机失败", Toast.LENGTH_LONG).show();

@@ -38,6 +38,9 @@ public class PictureSelectActivity extends AppCompatActivity {
 
     private final int PERMISSION_CODE_FIRST = 0x14;//权限请求码
     private PictureSelectDialog mSelectPictureDialog;
+    private ActivityResultLauncher<Intent> cropLauncher;
+    private ActivityResultLauncher<String> albumLauncher;
+    private ActivityResultLauncher<Uri> cameraLauncher;
     private boolean isToast = true;//是否弹吐司，为了保证for循环只弹一次
     private String picturePath = null;//最终图片路径
     public static final String CROP_WIDTH = "crop_width";
@@ -61,6 +64,34 @@ public class PictureSelectActivity extends AppCompatActivity {
         mCropHeight = getIntent().getIntExtra(CROP_HEIGHT, 200);
         mRatioWidth = getIntent().getIntExtra(RATIO_WIDTH, 1);
         mRatioHeight = getIntent().getIntExtra(RATIO_HEIGHT, 1);
+
+        cropLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                dealCrop(PictureSelectActivity.this);
+                if (cropPictureTempUri.getPath() != null) {
+                    File file = new File(cropPictureTempUri.getPath());
+                    picturePath = file.getAbsolutePath();
+                    handlePicturePath();
+                }
+            }
+        });
+        albumLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri result) {
+                if (result == null) finish();
+                else
+                    getPicturePath(cropLauncher, GET_BY_ALBUM, result, mCropEnabled, mCropWidth, mCropHeight, mRatioWidth, mRatioHeight);
+            }
+        });
+        cameraLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
+            @Override
+            public void onActivityResult(Boolean result) {
+                if (!result) finish();
+                else
+                    getPicturePath(cropLauncher, GET_BY_CAMERA, takePictureUri, mCropEnabled, mCropWidth, mCropHeight, mRatioWidth, mRatioHeight);
+            }
+        });
 
         //请求应用需要的所有权限
         boolean checkPermissionFirst = PermissionUtils.checkPermissionFirst(this, PERMISSION_CODE_FIRST,
@@ -106,37 +137,14 @@ public class PictureSelectActivity extends AppCompatActivity {
      * 选择图片
      */
     public void selectPicture() {
-        final ActivityResultLauncher<Intent> cropLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                dealCrop(PictureSelectActivity.this);
-                if (cropPictureTempUri.getPath() != null) {
-                    File file = new File(cropPictureTempUri.getPath());
-                    picturePath = file.getAbsolutePath();
-                    handlePicturePath();
-                }
-            }
-        });
         mSelectPictureDialog = new PictureSelectDialog(this, R.style.ActionSheetDialogStyle);
         mSelectPictureDialog.setOnItemClickListener(new PictureSelectDialog.OnItemClickListener() {
             @Override
             public void onItemClick(int type) {
                 if (type == Constant.CAMERA) {
-                    PictureSelectUtils.getByCamera(PictureSelectActivity.this, new ActivityResultCallback<Boolean>() {
-                        @Override
-                        public void onActivityResult(Boolean result) {
-                            if (!result) finish();
-                            else getPicturePath(cropLauncher, GET_BY_CAMERA, takePictureUri, mCropEnabled, mCropWidth, mCropHeight, mRatioWidth, mRatioHeight);
-                        }
-                    });
+                    PictureSelectUtils.getByCamera(PictureSelectActivity.this, cameraLauncher);
                 } else if (type == Constant.ALBUM) {
-                    PictureSelectUtils.getByAlbum(PictureSelectActivity.this, new ActivityResultCallback<ActivityResult>() {
-                        @Override
-                        public void onActivityResult(ActivityResult result) {
-                            if (result.getResultCode() != RESULT_OK) finish();
-                            else getPicturePath(cropLauncher, GET_BY_ALBUM, result.getData().getData(), mCropEnabled, mCropWidth, mCropHeight, mRatioWidth, mRatioHeight);
-                        }
-                    });
+                    PictureSelectUtils.getByAlbum(albumLauncher);
                 } else if (type == Constant.CANCEL) {
                     finish();
                     PictureSelectActivity.this.overridePendingTransition(0, R.anim.activity_out);//activity延迟150毫秒退出，为了执行完Dialog退出的动画

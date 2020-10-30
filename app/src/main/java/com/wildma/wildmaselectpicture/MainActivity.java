@@ -6,17 +6,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.wildma.pictureselector.PictureBean;
-import com.wildma.pictureselector.PictureSelector;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.wildma.pictureselector.PictureBean;
+import com.wildma.pictureselector.PictureSelector;
+
 
 public class MainActivity extends AppCompatActivity {
-    public static final String    TAG = "PictureSelector";
-    private             ImageView mIvImage;
+    public static final String TAG = "PictureSelector";
+    private ImageView mIvImage;
     private final ActivityResultCallback<ActivityResult> callback = new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
@@ -41,39 +41,35 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+    private PictureSelector selector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mIvImage = (ImageView) findViewById(R.id.iv_image);
+        selector = PictureSelector.create(MainActivity.this, callback);
     }
 
     /**
      * 不裁剪
      */
     public void selectPicture(View view) {
-        PictureSelector
-                .create(MainActivity.this, callback)
-                .selectPicture(false);
+        selector.selectPicture(false);
     }
 
     /**
      * 自由裁剪
      */
     public void selectPicture2(View view) {
-        PictureSelector
-                .create(MainActivity.this, callback)
-                .selectPicture(true);
+        selector.selectPicture(true);
     }
 
     /**
      * 指定宽高及宽高比例裁剪
      */
     public void selectPicture3(View view) {
-        PictureSelector
-                .create(MainActivity.this, callback)
-                .selectPicture(true, 200, 200, 1, 1);
+        selector.selectPicture(true, 200, 200, 1, 1);
     }
 
 }

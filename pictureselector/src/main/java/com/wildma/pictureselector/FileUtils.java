@@ -47,7 +47,7 @@ public final class FileUtils {
      */
     public static String getImageCacheDir(Context context) {
         String cachePath;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) && context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) != null) {
             cachePath = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
         } else {
             cachePath = context.getCacheDir().getPath();
